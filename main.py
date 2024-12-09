@@ -26,7 +26,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",  # Local development
-        "https://*.railway.app",  # Netlify domains
+        "https://*.railway.app", 
+        "https://*.vercel.app", #vercel frontend
     ],
     allow_credentials=True,
     allow_methods=["*"],
