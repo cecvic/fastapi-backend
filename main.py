@@ -1,15 +1,19 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from phi.assistant import Assistant
-from phi.tools.yfinance import YFinanceTools
-from phi.llm.openai import OpenAIChat
 import json
 import os
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
+
+# Defer phidata imports to avoid circular dependencies
+def get_phi_imports():
+    from phi.assistant import Assistant
+    from phi.tools.yfinance import YFinanceTools
+    from phi.llm.openai import OpenAIChat
+    return Assistant, YFinanceTools, OpenAIChat
 
 class AnalysisRequest(BaseModel):
     stock_symbol: str
@@ -30,6 +34,7 @@ app.add_middleware(
 )
 
 def create_finance_assistant():
+    Assistant, YFinanceTools, OpenAIChat = get_phi_imports()
     return Assistant(
         llm=OpenAIChat(model="gpt-4o-mini"),
         tools=[YFinanceTools(
