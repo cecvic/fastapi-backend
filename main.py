@@ -27,7 +27,7 @@ app.add_middleware(
     allow_origins=[
         "*"  # All preview deployments
     ],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
