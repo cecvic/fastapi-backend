@@ -25,11 +25,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "https://trendhubs-railways-frontend.vercel.app",  # Add your Vercel domain
-        "https://trendhubs-railways-frontend-git-main.vercel.app",  # Preview deployments
-        "https://trendhubs-railways-frontend-*.vercel.app"  # All preview deployments
+        "*"  # All preview deployments
     ],
     allow_credentials=True,
     allow_methods=["*"],
