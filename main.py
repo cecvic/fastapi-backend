@@ -1,6 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing_extensions import Literal
+from phi.assistant import Assistant
+from phi.tools.yfinance import YFinanceTools
+from phi.llm.openai import OpenAIChat
 import json
 import os
 from dotenv import load_dotenv
@@ -8,34 +12,25 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Defer phidata imports to avoid circular dependencies
-def get_phi_imports():
-    from phi.assistant import Assistant
-    from phi.tools.yfinance import YFinanceTools
-    from phi.llm.openai import OpenAIChat
-    return Assistant, YFinanceTools, OpenAIChat
+# Define valid analysis types
+AnalysisType = Literal["technical", "fundamental", "sentiment", "comparative", "news_based", "risk"]
 
 class AnalysisRequest(BaseModel):
     stock_symbol: str
-    analysis_type: str = "technical"
+    analysis_type: AnalysisType = Field(default="technical", description="Type of analysis to perform")
 
 app = FastAPI()
 
-# Update CORS middleware to be more production-ready
+# Update CORS middleware configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",  # Local development
-        "https://*.railway.app", 
-        "https://*.vercel.app", #vercel frontend
-    ],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Frontend URLs
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 def create_finance_assistant():
-    Assistant, YFinanceTools, OpenAIChat = get_phi_imports()
     return Assistant(
         llm=OpenAIChat(model="gpt-4o-mini"),
         tools=[YFinanceTools(
